@@ -19,6 +19,6 @@ ENV MODBUS_INTERFACE /dev/ttyS01
 ENV BAUD_RATE 9600
 
 #CMD ["python3", "-u", "/opt/src/server.py"]
-CMD python3 -u ./src/server.py -m rtu -b ${BAUD_RATE} -p even -s ${MODBUS_INTERFACE} -n 0 -d 1
+CMD python3 -u ./src/server.py -m rtu -b ${BAUD_RATE} --rtu_parity even -s ${MODBUS_INTERFACE} -n 0 -d 1
 #CMD ["python3", "-u", "./src/server.py", "-m", "rtu", "-b", "${BAUD_RATE}", "-p", "even", "-s", "${MODBUS_INTERFACE}", "-n", "0", "-d", "1"]
 EXPOSE 5002
