@@ -9,6 +9,7 @@ import logging
 import os
 import signal
 import struct
+import serial
 
 from threading import Thread
 
@@ -17,6 +18,7 @@ from configparser import ConfigParser
 from modbussim.modbussim import ModbusSim
 from flask import Flask, request, jsonify, redirect
 from flasgger import Swagger
+
 app = Flask(__name__)
 app.config['SWAGGER'] = {
     "swagger_version": "2.0",
@@ -36,13 +38,20 @@ app.config['DEBUG'] = True
 app.config['PORT'] = 8082
 app.config['HOST'] = '0.0.0.0'
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.DEBUG)
 
 thread = None
 sim = None
+
+
+def map_rtu_parity(parity):
+    if parity == 'even':
+        return serial.PARITY_EVEN
+    if parity == 'odd':
+        return serial.PARITY_ODD
+    return serial.PARITY_NONE
 
 
 def init_sim():
@@ -58,15 +67,16 @@ def init_sim():
 
     if sim is None:
         LOGGER.info("Sim was not setup so configuring sim")
-        #slave_count = config.getint('slaves', 'slave_count')
-        #slave_start_id = config.getint('slaves', 'slave_start_id')
-        #input_register_count = config.getint('slave-config', 'input_register_count')
-        #holding_register_count = config.getint('slave-config','holding_register_count')
+        # slave_count = config.getint('slaves', 'slave_count')
+        # slave_start_id = config.getint('slaves', 'slave_start_id')
+        # input_register_count = config.getint('slave-config', 'input_register_count')
+        # holding_register_count = config.getint('slave-config','holding_register_count')
         print(config)
         if config.mode == 'rtu':
             sim = ModbusSim(mode=config.mode,
                             port=config.serial,
-                            baud=config.rtu_baud)
+                            baud=config.rtu_baud,
+                            parity=map_rtu_parity(config.rtu_parity))
         else:
             sim = ModbusSim(mode=config.mode,
                             port=config.port,
@@ -74,9 +84,9 @@ def init_sim():
 
         # TODO add register sections
         # TODO add all slaves acording to register sections
-        #for slave_id_offset in range(0, slave_count):
-            #TODO adjust it as dictionary
-            #sim.add_slave(slave_start_id + slave_id_offset, input_register_count, holding_register_count)
+        # for slave_id_offset in range(0, slave_count):
+        # TODO adjust it as dictionary
+        # sim.add_slave(slave_start_id + slave_id_offset, input_register_count, holding_register_count)
     if thread is None:
         thread = Thread(target=sim.start)
         thread.start()
@@ -576,6 +586,7 @@ def unhandled_exception(e):
     LOGGER.error('Unhandled Exception: %s', e)
     return str(e), 500
 
+
 def isJson(request):
     content_type = request.headers['Content-Type']
     return content_type is not None and content_type.startswith("application/json")
@@ -585,10 +596,12 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--mode', type=str, choices=('rtu', 'tcp'), default='rtu', help='modbus mode')
     parser.add_argument('-P', '--port', type=int, default=5005, help='IP port if using TCP mode')
-    parser.add_argument('-p', '--rtu_parity', type=str, choices=('even','odd','none'), default='none', help='modbus over serial parity')
+    parser.add_argument('-p', '--rtu_parity', type=str, choices=('even', 'odd', 'none'), default='none',
+                        help='modbus over serial parity')
     parser.add_argument('-b', '--rtu_baud', type=int, default=9600, help='baud rate for modbus')
     parser.add_argument('-t', '--hostname', type=str, default='127.0.0.1', help='IP hostname or address')
-    parser.add_argument('-c', '--config', type=str, default='../config/test.conf', help='modbus simulator configuration file')
+    parser.add_argument('-c', '--config', type=str, default='../config/test.conf',
+                        help='modbus simulator configuration file')
     parser.add_argument('-s', '--serial', type=str, default='/dev/ttyS0', help='serial port on which to sim')
     parser.add_argument('-n', '--slave_count', type=int, default=0, help='Number of slave devices to create')
     parser.add_argument('-d', '--slave_start_id', type=int, default=1, help='Starting id of slaves')
@@ -613,12 +626,12 @@ def load_config(args):
     if args.serial:
         config.serial = args.serial
 
-    #if not 'slaves' in config.sections():
+    # if not 'slaves' in config.sections():
     #    config.add_section('slaves')
     #    config.set('slaves', 'slave_count', str(args.slave_count))
     #    config.set('slaves', 'slave_start_id', str(args.slave_start_id))
 
-    #if not 'slave-config' in config.sections():
+    # if not 'slave-config' in config.sections():
     #    config.add_section('slave-config')
     #    config.set('slave-config', 'input_register_count', '9999')
     #    config.set('slave-config', 'holding_register_count', '9999')
@@ -654,5 +667,5 @@ if __name__ == '__main__':
     signal.signal(signal.SIGQUIT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     main()
-    app.run(host=config.get('server','host'), port=config.getint('server','port'),
-            debug=config.getboolean('server','debug'), threaded=True)
+    app.run(host=config.get('server', 'host'), port=config.getint('server', 'port'),
+            debug=config.getboolean('server', 'debug'), threaded=True)
