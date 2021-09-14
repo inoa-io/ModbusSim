@@ -5,7 +5,7 @@ docker build . -t ${DOCKER_IMAGE}
 
 
 {
-  sleep 10
+  sleep 5
   curl -X POST \
     -H "accept: application/json" \
     -H  "Content-Type: application/json" \
