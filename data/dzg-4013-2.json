@@ -5,8 +5,8 @@
       {
         "name": "holding",
         "register_count": 200,
-        "register_type": 1,
-        "start_address": 16385,
+        "register_type": 3,
+        "start_address": 16384,
         "register_data": [
           1,
           2,
@@ -218,8 +218,8 @@
       {
         "name": "holding",
         "register_count": 200,
-        "register_type": 2,
-        "start_address": 16385,
+        "register_type": 3,
+        "start_address": 16384,
         "register_data": [
           1,
           2,
@@ -432,7 +432,7 @@
         "name": "holding",
         "register_count": 200,
         "register_type": 3,
-        "start_address": 16385,
+        "start_address": 16384,
         "register_data": [
           1,
           2,
