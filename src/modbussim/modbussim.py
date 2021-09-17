@@ -9,7 +9,6 @@ from modbus_tk.modbus_tcp import TcpServer
 from modbus_tk.simulator import Simulator
 from modbus_tk.utils import calculate_rtu_inter_char
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.StreamHandler())
 LOGGER.setLevel(logging.DEBUG)
@@ -54,7 +53,7 @@ class ModbusRtuServer(RtuServer):
                                                 'opened' if self._serial.isOpen() else 'closed'))
         self._t0 = calculate_rtu_inter_char(self._serial.baudrate)
         self._serial.interCharTimeout = 1.5 * self._t0
-        self._serial.timeout = 10*self._t0
+        self._serial.timeout = 10 * self._t0
         LOGGER.info('interchar timeout = %f' % (self._serial.interCharTimeout,))
         LOGGER.info('timeout = %f' % (self._serial.timeout,))
 
@@ -81,19 +80,19 @@ class ModbusRtuServer(RtuServer):
 
 
 class ModbusSim(Simulator):
-
     slaves = {}
 
-    def __init__(self, mode, port, baud=None, hostname=None, verbose=None):
+    def __init__(self, mode, port, baud=None, parity=None, hostname=None, verbose=None):
         self.rtu = None
         self.mode = mode
         if self.mode == 'rtu' and baud and port:
-            self.rtu = serial.Serial(port=port, baudrate=baud)
+            self.rtu = serial.Serial(port=port, baudrate=baud, parity=parity)
             Simulator.__init__(self, ModbusRtuServer(self.rtu))
             # timeout is too fast for 19200 so increase a little bit
             self.server._serial.timeout *= 2
             self.server._serial.interCharTimeout *= 2
-            LOGGER.info('Initializing x modbus %s simulator: baud = %d port = %s parity = %s' % (self.mode, baud, port, self.rtu.parity))
+            LOGGER.info('Initializing x modbus %s simulator: baud = %d port = %s parity = %s' % (
+            self.mode, baud, port, self.rtu.parity))
             LOGGER.info('stop bits = %d xonxoff = %d' % (self.rtu.stopbits, self.rtu.xonxoff))
         elif self.mode == 'tcp' and hostname and port:
             Simulator.__init__(self, TcpServer(address=hostname, port=port))
@@ -116,7 +115,7 @@ class ModbusSim(Simulator):
     def add_slave(self, slave_id, registers_array):
         if slave_id in self.slaves:
             raise ModbusSimError('Slave with slaveID: %s already exists...' % (slave_id))
-        LOGGER.info('Generating slave with slave_id: %s' %(slave_id))
+        LOGGER.info('Generating slave with slave_id: %s' % (slave_id))
         slave = self.server.add_slave(slave_id)
         registers_dict = {}
 
@@ -125,8 +124,8 @@ class ModbusSim(Simulator):
             register_count = register_config['register_count']
             start_address = register_config['start_address']
             register_type = register_config['register_type']
-            LOGGER.info('Slave id: %s has section %s with %d registers' %(slave_id, register_name, register_count))
-            registers_dict.update({register_name : {
+            LOGGER.info('Slave id: %s has section %s with %d registers' % (slave_id, register_name, register_count))
+            registers_dict.update({register_name: {
                 register_name + '_register_count': register_count,
                 register_name + '_start_address': start_address,
                 register_name + '_register_type': register_type
@@ -135,7 +134,6 @@ class ModbusSim(Simulator):
                 slave.add_block(register_name + '_registers', register_type, start_address, register_count)
 
         self.slaves.update({slave_id: registers_dict})
-
 
     def dump_simulator(self):
         if not self.slaves:
@@ -163,7 +161,7 @@ class ModbusSim(Simulator):
         toReturn = '{"slave_id":' + str(slave_id)
         toReturn += ',"registers":['
         for register_name in self.slaves[slave_id]:
-            LOGGER.info('Register: %s' %(register_name))
+            LOGGER.info('Register: %s' % (register_name))
             register_section = self.slaves[slave_id][register_name]
             register_count = register_section[register_name + '_register_count']
             start_address = register_section[register_name + '_start_address']
@@ -176,10 +174,10 @@ class ModbusSim(Simulator):
             if not toReturn.endswith('['):
                 toReturn += ','
             toReturn += '{"name": "' + register_name + '"'
-            toReturn += ',"register_count": '+str(register_count)
-            toReturn += ',"register_type": '+str(register_type)
-            toReturn += ',"start_address": '+str(start_address)
-            toReturn += ',"register_data": '+str(list(registers))
+            toReturn += ',"register_count": ' + str(register_count)
+            toReturn += ',"register_type": ' + str(register_type)
+            toReturn += ',"start_address": ' + str(start_address)
+            toReturn += ',"register_data": ' + str(list(registers))
             toReturn += '}'
 
         toReturn += ']}'
@@ -209,14 +207,14 @@ class ModbusSim(Simulator):
             slave_dict = self.slaves[slave_id]
             if register_name in slave_dict and slave_dict[register_name + '_register_count'] > 0:
                 slave.remove_block(register_name)
-        
+
         if register_count > 0:
             slave.add_block(register_name + '_registers',
                             register_type, start_address, register_count)
             slave.set_values(register_name + '_registers', start_address, register_data)
 
-        registers_dict.update({register_name : {
-                register_name + '_register_count': register_count,
-                register_name + '_start_address': start_address,
-                register_name + '_register_type': register_type
-            }})
+        registers_dict.update({register_name: {
+            register_name + '_register_count': register_count,
+            register_name + '_start_address': start_address,
+            register_name + '_register_type': register_type
+        }})

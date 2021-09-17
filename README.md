@@ -1,4 +1,7 @@
 # ModbusSim
+
+## What it is
+
 Fork of Modbus RTU/TCP simulator with a REST api attached with additional read registers (instantaneous_registers, meter_registers, tariff_data_registers, current_data_registers, prev1_data_registers). For now, this additional registers can be imported only by using '/dump' endpoint.
 
 Looked for a long time for a modbus RTU simulator that could do single server multi-slave simulations and couldn't find anything quite suitable. Something that could be used to rapidly stand-up and teardown various multi-slave setups programatically in modern distributed REST API based systems. Most tools seemed to be written for non-software developers and mostly for windows users.
@@ -6,6 +9,8 @@ Looked for a long time for a modbus RTU simulator that could do single server mu
 Got a lot of inspiration, especially from [Luc Jean](https://github.com/ljean) and his work on modbus-tk!
 
 Pretty basic but more updates/improvements coming soon - especially documentation!
+
+## Run with docker-compose
 
 If you have docker-compose installed, this is the fast way to get going:
 ```
@@ -28,7 +33,7 @@ cd ModbusSim/src
 sudo python3 server.py
 ```
 
-Due to some funky threading related issues, currently, the simulator doesn't start until you visit the base url. Open your second terminal window and curl the root to setup the slave devices and start the modbus RTU server:
+Due to some funky threading related issues, currently, the simulator doesn't start until you visit the base url. Open your second terminal window and curl the root to set up the slave devices and start the modbus RTU server:
 
 ```sh
 emre@nv-emre-lnx-1 ~ $ curl 0.0.0.0:5002
@@ -80,3 +85,7 @@ To read from individual register:
 ```sh
 curl http://127.0.0.1:5002/slave/10/40001
 ```
+
+## Simulate serial devices
+
+See [doc/modbus-rtu-testing.md](doc/modbus-rtu-testing.md) to use the simulator with socat to emulate serial devices for communication.
