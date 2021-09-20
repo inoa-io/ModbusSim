@@ -55,4 +55,21 @@ In difference to setup A) you will communicate with real serial interfaces and n
 
 ## How To
 
-T.b.d.
+1. Launch the [docker-compose-socat](../docker-compose-rs485.yml) with help of [start-with-rs485.sh](../start-with-rs485.sh).
+   Check [this](../start-with-socat.sh) bash script and the corresponding [docker-compose-rs485.yml](../docker-compose-rs485.yml) to understand how it works. It will use your **/dev/ttyUSB0** device per default.
+   ```shell
+   ./start-with-rs485.sh
+   ```
+2. If your RS485 interface it at a different location, start the simulator this way:
+   ```shell
+   export MODBUS_INTERFACE=/dev/ttyUSB1 && ./start-with-rs485.sh
+   ```
+3. Load some test data into the simulator. This will create 3 modbus slaves with id 1,2,3. You can see the test data in [data/dzg-4013-2.json](../data/dzg-4013-2.json):
+   ```shell
+   curl -X POST \
+      -H "accept: application/json" \
+      -H  "Content-Type: application/json" \
+      -d @data/dzg-4013-2.json \
+      "http://localhost:5002/dump"
+   ```
+

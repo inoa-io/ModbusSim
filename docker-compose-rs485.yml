@@ -1,0 +1,13 @@
+version: '2'
+services:
+  modbussim:
+    image: inoa/modbus-simulator:0.1
+    restart: on-failure
+    build: .
+    privileged: true
+    environment:
+      - MODBUS_INTERFACE=${MODBUS_INTERFACE}
+    volumes:
+      - /dev:/dev:rw
+    ports:
+      - "5002:5002"
