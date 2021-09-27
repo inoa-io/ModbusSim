@@ -27,7 +27,7 @@ jobs:
       - name: build socat docker image
         run: docker build . -t ghcr.io/inoa-io/socat:${{ steps.prep.outputs.BUILD_ID }}
       - name: docker push socat
-        run: docker push ghcr.io/inoa-io/modbus-simulator:${{ steps.prep.outputs.BUILD_ID }}
+        run: docker push ghcr.io/inoa-io/socat:${{ steps.prep.outputs.BUILD_ID }}
       - name: build modpoll docker image
         run: docker build . -t ghcr.io/inoa-io/modpoll:${{ steps.prep.outputs.BUILD_ID }}
       - name: docker push modpoll
