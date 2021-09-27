@@ -15,5 +15,9 @@ jobs:
           ts=$(date +%s)
           echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"
       - uses: actions/checkout@v2
-      - name: build docker image
+      - name: build simulator docker image
         run: docker build . -t ghcr.io/inoa-io/modbus-simulator:${{ steps.prep.outputs.BUILD_ID }}
+      - name: build socat docker image
+        run: docker build . -t ghcr.io/inoa-io/socat:${{ steps.prep.outputs.BUILD_ID }}
+      - name: build modpoll image
+        run: docker build . -t ghcr.io/inoa-io/modpoll:${{ steps.prep.outputs.BUILD_ID }}

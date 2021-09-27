@@ -1,6 +1,4 @@
 #!/bin/bash
-DOCKER_IMAGE=inoa/modbus-simulator:0.1
-
 
 export CLOUDSDK_PYTHON=python2
 

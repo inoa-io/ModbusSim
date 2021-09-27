@@ -1,6 +1,4 @@
 #!/bin/bash
-DOCKER_IMAGE=inoa/modbus-simulator:0.1
-SOCAT_DOCKER_IMAGE=inoa/socat:0.1
 
 export CLOUDSDK_PYTHON=python2
 
