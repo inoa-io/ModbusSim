@@ -1,0 +1,19 @@
+name: PullRequest
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate build ID
+        id: prep
+        run: |
+          branch=${GITHUB_REF##*/}
+          sha=${GITHUB_SHA::8}
+          ts=$(date +%s)
+          echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"
+      - uses: actions/checkout@v2
+      - name: build docker image
+        run: docker build . -t ghcr.io/inoa-io/modbus-simulator:${{ steps.prep.outputs.BUILD_ID }}
