@@ -1,7 +1,7 @@
 version: '2'
 services:
   modbussim:
-    image: inoa/modbus-simulator:0.1
+    image: ghcr.io/inoa-io/modbus-simulator:0.1
     restart: on-failure
     build: .
     privileged: true
@@ -15,7 +15,7 @@ services:
     depends_on:
       - socat
   socat:
-    image: inoa/socat:0.1
+    image: ghcr.io/inoa-io/socat:0.1
     build: compose/socat
     privileged: true
     volumes:
@@ -25,7 +25,7 @@ services:
       - SLAVE_INTERFACE=/dev2${SLAVE_INTERFACE}
       - MASTER_INTERFACE=/dev2${MASTER_INTERFACE}
   modpoll:
-    image: inoa/modpoll:0.1
+    image: ghcr.io/inoa-io/modpoll:0.1
     build: compose/modpoll
     privileged: true
     volumes:

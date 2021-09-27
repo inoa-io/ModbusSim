@@ -18,13 +18,17 @@ jobs:
           ts=$(date +%s)
           echo "::set-output name=BUILD_ID::${branch}-${sha}-${ts}"
       - uses: actions/checkout@v2
-      - name: build docker image
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: build simulator docker image
         run: docker build . -t ghcr.io/inoa-io/modbus-simulator:${{ steps.prep.outputs.BUILD_ID }}
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GIT_ACTION_TOKEN }}
-      - name: docker push
+      - name: docker push modbus-simulator
         run: docker push ghcr.io/inoa-io/modbus-simulator:${{ steps.prep.outputs.BUILD_ID }}
+      - name: build socat docker image
+        run: docker build . -t ghcr.io/inoa-io/socat:${{ steps.prep.outputs.BUILD_ID }}
+      - name: docker push socat
+        run: docker push ghcr.io/inoa-io/modbus-simulator:${{ steps.prep.outputs.BUILD_ID }}
+      - name: build modpoll docker image
+        run: docker build . -t ghcr.io/inoa-io/modpoll:${{ steps.prep.outputs.BUILD_ID }}
+      - name: docker push modpoll
+        run: docker push ghcr.io/inoa-io/modpoll:${{ steps.prep.outputs.BUILD_ID }}
